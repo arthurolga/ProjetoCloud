@@ -14,8 +14,8 @@ auth = HTTPBasicAuth()
 
 @auth.get_password
 def get_password(username):
-    if username == 'miguel':
-        return 'python'
+    if username == 'arthur':
+        return 'olga'
     return None
 
 
@@ -128,4 +128,4 @@ api.add_resource(HealthAPI, '/todo/api/v1.0/', endpoint='healtcheck')
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host=0.0.0.0,,debug=True)
