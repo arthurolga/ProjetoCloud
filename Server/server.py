@@ -76,7 +76,6 @@ class TaskListAPI(Resource):
             'description': args['description'],
             'done': False
         }
-        tasks.append(task)
         # mongo.db.users.insert_one(data)
         mongo.db.tasks.insert_one(task)
         return {'message': 'ok!'}, 200
@@ -146,4 +145,4 @@ api.add_resource(HealthAPI, '/todo/api/v1.0/', endpoint='healtcheck')
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=True)
