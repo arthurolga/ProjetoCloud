@@ -6,10 +6,17 @@ Flask-RESTful extension."""
 from flask import Flask, jsonify, abort, make_response
 from flask_restful import Api, Resource, reqparse, fields, marshal
 from flask_httpauth import HTTPBasicAuth
+from bson.objectid import ObjectId
+from flask_pymongo import PyMongo
+import json
+import datetime
+import os
 
 app = Flask(__name__, static_url_path="")
 api = Api(app)
 auth = HTTPBasicAuth()
+app.config['MONGO_URI'] = os.environ['DB']
+mongo = PyMongo(app)
 
 
 @auth.get_password
@@ -26,27 +33,22 @@ def unauthorized():
     return make_response(jsonify({'message': 'Unauthorized access'}), 403)
 
 
-tasks = [
-    {
-        'id': 1,
-        'title': u'Buy groceries',
-        'description': u'Milk, Cheese, Pizza, Fruit, Tylenol',
-        'done': False
-    },
-    {
-        'id': 2,
-        'title': u'Learn Python',
-        'description': u'Need to find a good Python tutorial on the web',
-        'done': False
-    }
-]
-
 task_fields = {
     'title': fields.String,
     'description': fields.String,
     'done': fields.Boolean,
     'uri': fields.Url('task')
 }
+
+
+def make_json(dic):
+    task = {
+        '_id': str(dic["_id"]),
+        'title': dic['title'],
+        'description': dic['description'],
+        'done': dic['done']
+    }
+    return task
 
 
 class TaskListAPI(Resource):
@@ -62,18 +64,22 @@ class TaskListAPI(Resource):
         super(TaskListAPI, self).__init__()
 
     def get(self):
-        return {'tasks': [marshal(task, task_fields) for task in tasks]}
+        print(mongo)
+        data = mongo.db.tasks.find()
+        # [str(doc) for doc in data]  #
+        return [make_json(doc) for doc in data]
 
     def post(self):
         args = self.reqparse.parse_args()
         task = {
-            'id': tasks[-1]['id'] + 1 if len(tasks) > 0 else 1,
             'title': args['title'],
             'description': args['description'],
             'done': False
         }
         tasks.append(task)
-        return {'task': marshal(task, task_fields)}, 201
+        # mongo.db.users.insert_one(data)
+        mongo.db.tasks.insert_one(task)
+        return {'message': 'ok!'}, 200
 
 
 class TaskAPI(Resource):
@@ -87,28 +93,40 @@ class TaskAPI(Resource):
         super(TaskAPI, self).__init__()
 
     def get(self, id):
-        task = [task for task in tasks if task['id'] == id]
-        if len(task) == 0:
-            abort(404)
-        return {'task': marshal(task[0], task_fields)}
+        # task = [task for task in tasks if task['id'] == id]
+        # if len(task) == 0:
+        #     abort(404)
+        # return {'task': marshal(task[0], task_fields)}
+        data = mongo.db.tasks.find_one(
+            {"_id": ObjectId(id)})
+        return make_json(data)
 
     def put(self, id):
-        task = [task for task in tasks if task['id'] == id]
-        if len(task) == 0:
-            abort(404)
-        task = task[0]
         args = self.reqparse.parse_args()
-        for k, v in args.items():
-            if v is not None:
-                task[k] = v
-        return {'task': marshal(task, task_fields)}
+        task = {
+            'title': args['title'],
+            'description': args['description'],
+            'done': args['done']
+        }
+
+        data = mongo.db.tasks.update_one(
+            {"_id": ObjectId(id)}, {"$set": task})
+        return {"updated": True}
+
+        # task = [task for task in tasks if task['id'] == id]
+        # if len(task) == 0:
+        #     abort(404)
+        # task = task[0]
+        # args = self.reqparse.parse_args()
+        # for k, v in args.items():
+        #     if v is not None:
+        #         task[k] = v
+        # return {'task': marshal(task, task_fields)}
 
     def delete(self, id):
-        task = [task for task in tasks if task['id'] == id]
-        if len(task) == 0:
-            abort(404)
-        tasks.remove(task[0])
-        return {'result': True}
+        data = mongo.db.tasks.delete_one(
+            {"_id": ObjectId(id)})
+        return {'result': data.deleted_count == 1}
 
 
 class HealthAPI(Resource):
@@ -123,9 +141,9 @@ class HealthAPI(Resource):
 
 
 api.add_resource(TaskListAPI, '/todo/api/v1.0/tasks', endpoint='tasks')
-api.add_resource(TaskAPI, '/todo/api/v1.0/tasks/<int:id>', endpoint='task')
+api.add_resource(TaskAPI, '/todo/api/v1.0/tasks/<id>', endpoint='task')
 api.add_resource(HealthAPI, '/todo/api/v1.0/', endpoint='healtcheck')
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0",debug=True)
+    app.run(debug=True)
