@@ -52,7 +52,6 @@ def make_json(dic):
 
 
 class TaskListAPI(Resource):
-    decorators = [auth.login_required]
 
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
@@ -82,7 +81,6 @@ class TaskListAPI(Resource):
 
 
 class TaskAPI(Resource):
-    decorators = [auth.login_required]
 
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
@@ -129,7 +127,6 @@ class TaskAPI(Resource):
 
 
 class HealthAPI(Resource):
-    decorators = [auth.login_required]
 
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
