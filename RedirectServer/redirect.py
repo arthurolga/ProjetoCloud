@@ -21,26 +21,26 @@ password = "olga"
 @app.route('/')
 def root():
     print(new_url)
-    return requests.get(new_url, code=307).content
+    return requests.get(new_url).content
 
 
 @app.route('/<path:page>', methods=['GET'])
 def getpage(page):
-    # to_url = '{new_url}/{page}'.format(page=page, new_url=new_url)
+    to_url = '{new_url}/{page}'.format(page=page, new_url=new_url)
     # print(to_url)
     # return redirect(to_url,
     #                 code=307)
-    r = requests.get(new_url+{page})
+    r = requests.get(to_url)
     return r.content
 
 
 @app.route('/<path:page>', methods=['POST'])
 def postpage(page):
-    # to_url = '{new_url}/{page}'.format(page=page, new_url=new_url)
+    to_url = '{new_url}/{page}'.format(page=page, new_url=new_url)
     # print(to_url)
     # return redirect(to_url,
     #                 code=307)
-    r = requests.post('{new_url}/{page}', json=request.get_json())
+    r = requests.post(to_url, json=request.get_json())
     return r.content
 
 
