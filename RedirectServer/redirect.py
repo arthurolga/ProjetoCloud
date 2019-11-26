@@ -17,7 +17,7 @@ from flask import Flask, redirect
 
 
 app = Flask(__name__)
-new_url = 'http://arthur-load-balancer-1469718616.us-east-1.elb.amazonaws.com:5000/todo/api/v1.0/'
+new_url = os.environ['NEW_URL']
 username = "arthur"
 password = "olga"
 
@@ -30,7 +30,9 @@ def root():
 
 @app.route('/<path:page>')
 def anypage(page):
-    return redirect('{new_url}/{page}'.format(page=page, new_url=new_url),
+    to_url = '{new_url}/{page}'.format(page=page, new_url=new_url)
+    print(to_url)
+    return redirect(to_url,
                     code=302)
 
 
