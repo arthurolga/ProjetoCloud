@@ -6,8 +6,6 @@ Flask-RESTful extension."""
 from flask import Flask, jsonify, abort, make_response
 from flask_restful import Api, Resource, reqparse, fields, marshal
 from flask_httpauth import HTTPBasicAuth
-from bson.objectid import ObjectId
-from flask_pymongo import PyMongo
 import requests
 import json
 import datetime
