@@ -26,12 +26,12 @@ def root():
     return redirect(new_url, code=302)
 
 
-@app.route('/<path:page>')
+@app.route('/<path:page>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def anypage(page):
     to_url = '{new_url}/{page}'.format(page=page, new_url=new_url)
     print(to_url)
     return redirect(to_url,
-                    code=302)
+                    code=307)
 
 
 if __name__ == '__main__':
