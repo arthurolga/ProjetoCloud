@@ -21,7 +21,7 @@ password = "olga"
 @app.route('/')
 def root():
     print(new_url)
-    return requests.get(new_url).content
+    return requests.get(url=new_url).content
 
 
 @app.route('/<path:page>', methods=['GET'])
@@ -30,8 +30,9 @@ def getpage(page):
     # print(to_url)
     # return redirect(to_url,
     #                 code=307)
-    r = requests.get(to_url)
-    return r.content
+    # red=requests.get(url="http://{}:5000/api/v1/users".format(redIp))
+    r = requests.get(url=to_url)
+    return r.content,
 
 
 @app.route('/<path:page>', methods=['POST'])
@@ -40,7 +41,7 @@ def postpage(page):
     # print(to_url)
     # return redirect(to_url,
     #                 code=307)
-    r = requests.post(to_url, json=request.get_json())
+    r = requests.post(url=to_url, json=request.get_json())
     return r.content
 
 
