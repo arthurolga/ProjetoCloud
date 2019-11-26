@@ -32,7 +32,7 @@ def getpage(page):
     #                 code=307)
     # red=requests.get(url="http://{}:5000/api/v1/users".format(redIp))
     r = requests.get(url=to_url)
-    return r.content,
+    return r.content
 
 
 @app.route('/<path:page>', methods=['POST'])
